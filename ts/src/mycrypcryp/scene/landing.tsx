@@ -22,6 +22,9 @@ namespace mycrypcryp { export namespace scene {
         private async init(){
             manager.LoadingManager.shared.begin()
 
+            this.getCurrentConversion()
+            this.displayCurrentConversion()
+
             const info = await com.danborutori.cryptoApi.Binance.shared.getExchangeInfo()
             const filteredSymbols = info.symbols.filter(sym=>sym.quoteAsset==setting.AppSetting.shared.quoteAsset)
             const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
@@ -29,7 +32,17 @@ namespace mycrypcryp { export namespace scene {
             const openTime = trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE)
             const closeTime = trends.reduce((a,b)=>Math.max(a,b.trend.data.last.close.getTime()),Number.MIN_VALUE)
 
+            let rulerAdded = false
+
             trends.forEach(t=> {
+                if( !setting.AppSetting.shared.prioritySet.has(t.baseAsset) ){
+                    if( !rulerAdded ){
+                        const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
+                        graphDiv.appendChild(<hr/>)
+                        rulerAdded = true
+                    }
+                }
+
                 this.updateGraph(
                     t.baseAsset,
                     setting.AppSetting.shared.quoteAsset,
@@ -44,11 +57,11 @@ namespace mycrypcryp { export namespace scene {
             manager.LoadingManager.shared.end()
         }
 
-        private async updateCurrentConversion(){
+        private async getCurrentConversion(){
             this.currentConversion = await com.danborutori.cryptoApi.CryptoCompare.shared.getPrice(setting.AppSetting.shared.quoteAsset,setting.AppSetting.shared.currency)
         }
 
-        private updateCurrentConvension(){
+        private displayCurrentConversion(){
             const label = this.htmlElement.querySelector("div[name=usdthkdLabel]") as HTMLDivElement
             label.innerHTML = `1 ${setting.AppSetting.shared.quoteAsset} = ${this.currentConversion} ${setting.AppSetting.shared.currency}`
         }
@@ -90,7 +103,7 @@ namespace mycrypcryp { export namespace scene {
             return trends
         }
 
-        private async updateGraph(
+        private updateGraph(
             baseAsset: string,
             quoteAsset: string,
             trend: com.danborutori.cryptoApi.util.TrendWatcher,
@@ -98,16 +111,13 @@ namespace mycrypcryp { export namespace scene {
                 open: Date
                 close: Date
             } ){
-            await this.updateCurrentConversion()
-            this.updateCurrentConvension()
-
             const graph = new view.SymbolGraph(
                 quoteAsset,
                 trend,
                 range,
                 {
                     currency: setting.AppSetting.shared.currency,
-                    ratio: await com.danborutori.cryptoApi.CryptoCompare.shared.getPrice(quoteAsset,setting.AppSetting.shared.currency)
+                    ratio: this.currentConversion
                 }
             )
 
