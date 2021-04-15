@@ -3,7 +3,7 @@ namespace mycrypcryp { export namespace view {
     export class SymbolGraph {
         readonly htmlElement = <div style="display: inline-block">
             <div style="display: inline-block">
-                <canvas name="graphCanvas" width="200" height="200"></canvas>
+                <canvas name="graphCanvas" width="200" height="100"></canvas>
                 <div>
                     <font size="2">
                     <div name="from" style="display: inline-block; float:left;">from 2</div>

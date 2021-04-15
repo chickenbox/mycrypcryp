@@ -1,19 +1,21 @@
 namespace mycrypcryp { export namespace scene { 
 
     const smoothItr = 10
-    const interval: com.danborutori.cryptoApi.Interval = "1M"
     const limit = 1000
     const minimumSample = 20
 
     export class Landing {
+        private currentConversion = 0
+        private interval: com.danborutori.cryptoApi.Interval = "1M"
+        private openTime = new Date(0)
+
         htmlElement = <div><center>
             <div name="usdthkdLabel"></div>
-            interval: {interval} smoothItr: {smoothItr} limit: {limit} minimumSample: {minimumSample}<br/>
+            interval: {this.interval} smoothItr: {smoothItr} limit: {limit} minimumSample: {minimumSample}<br/>
             <hr/>
             <div name="graphDiv"></div>
         </center></div> as HTMLDivElement
 
-        private currentConversion = 0
 
         constructor(){
             this.init()
@@ -27,7 +29,7 @@ namespace mycrypcryp { export namespace scene {
 
             const info = await com.danborutori.cryptoApi.Binance.shared.getExchangeInfo()
             const filteredSymbols = info.symbols.filter(sym=>sym.quoteAsset==setting.AppSetting.shared.quoteAsset)
-            const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
+            const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset), this.openTime)
 
             const openTime = trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE)
             const closeTime = trends.reduce((a,b)=>Math.max(a,b.trend.data.last.close.getTime()),Number.MIN_VALUE)
@@ -66,13 +68,14 @@ namespace mycrypcryp { export namespace scene {
             label.innerHTML = `1 ${setting.AppSetting.shared.quoteAsset} = ${this.currentConversion} ${setting.AppSetting.shared.currency}`
         }
 
-        private async getTrends( baseAssets: string[] ){
+        private async getTrends( baseAssets: string[], startTime: Date ){
 
             const trends = (await Promise.all( baseAssets.map( async baseAsset=>{
                 const data = await com.danborutori.cryptoApi.Binance.shared.getKlineCandlestickData(
                     `${baseAsset}${setting.AppSetting.shared.quoteAsset}`,
-                    interval,
+                    this.interval,
                     {
+                        startTime: startTime.getTime(),
                         limit: limit
                     }
                 )
