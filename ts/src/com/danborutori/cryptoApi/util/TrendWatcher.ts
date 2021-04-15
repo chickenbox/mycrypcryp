@@ -32,11 +32,11 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                 let r = d.price
                 let cnt = 1
                 if(i>0){
-                    r += arr[i-1].price
+                    r += smoothedData[i-1].price
                     cnt++
                 }
-                if( i<arr.length-1){
-                    r += arr[i+1].price
+                if( i+1<smoothedData.length){
+                    r += smoothedData[i+1].price
                     cnt++
                 }
                 return {
