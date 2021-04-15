@@ -4,17 +4,53 @@ namespace mycrypcryp { export namespace scene {
     const limit = 1000
     const minimumSample = 20
 
+    interface BaseTrend {
+        baseAsset: string
+        trend: com.danborutori.cryptoApi.util.TrendWatcher
+    }
+
+    const rangeOptions = [
+        {
+            title: "last 5 years",
+            dateFunc: function(){
+                let d = new Date()
+                d.setFullYear(d.getFullYear()-5)
+                return d
+            }
+        },
+        {
+            title: "last 1 years",
+            dateFunc: function(){
+                let d = new Date()
+                d.setFullYear(d.getFullYear()-1)
+                return d
+            }
+        },
+        {
+            title: "last 6 months",
+            dateFunc: function(){
+                let d = new Date()
+                d.setMonth(d.getMonth()-6)
+                return d
+            }
+        },
+        {
+            title: "last 3 months",
+            dateFunc: function(){
+                let d = new Date()
+                d.setMonth(d.getMonth()-3)
+                return d
+            }
+        }
+    ]
+
     export class Landing {
         private currentConversion = 0
         private interval: com.danborutori.cryptoApi.Interval = "1M"
-        private openTime = new Date(0)
+        private currentRangeIndex = 0
+        private openTime = rangeOptions[0].dateFunc()
 
-        htmlElement = <div><center>
-            <div name="usdthkdLabel"></div>
-            interval: {this.interval} smoothItr: {smoothItr} limit: {limit} minimumSample: {minimumSample}<br/>
-            <hr/>
-            <div name="graphDiv"></div>
-        </center></div> as HTMLDivElement
+        readonly htmlElement = <div></div> as HTMLDivElement
 
 
         constructor(){
@@ -22,30 +58,59 @@ namespace mycrypcryp { export namespace scene {
         }
 
         private async init(){
-            manager.LoadingManager.shared.begin()
 
-            this.getCurrentConversion()
-            this.displayCurrentConversion()
+            manager.LoadingManager.shared.begin()
 
             const info = await com.danborutori.cryptoApi.Binance.shared.getExchangeInfo()
             const filteredSymbols = info.symbols.filter(sym=>sym.quoteAsset==setting.AppSetting.shared.quoteAsset)
-            const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset), this.openTime)
+            const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
 
-            const openTime = trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE)
+            manager.LoadingManager.shared.end()
+
+            this.refresh(trends)
+        }
+
+        private async refresh( trends: BaseTrend[] ){            
+            manager.LoadingManager.shared.begin()
+
+            await this.getCurrentConversion()
+
+            this.htmlElement.innerHTML = ""
+            this.htmlElement.appendChild(<center>
+                1 {setting.AppSetting.shared.quoteAsset} = {this.currentConversion} {setting.AppSetting.shared.currency}<br/>
+                interval: {this.interval} smoothItr: {smoothItr} limit: {limit} minimumSample: {minimumSample}<br/>
+                range: <select onchange={ev=>{
+                    const select = ev.target as HTMLSelectElement
+                    this.currentRangeIndex = select.selectedIndex
+                    this.openTime =  rangeOptions[select.selectedIndex].dateFunc()
+                    this.refresh(trends)
+                }}>{
+                    rangeOptions.map((opt, i)=>{
+                        const option = <option>{opt.title}</option> as HTMLOptionElement
+                        if( this.currentRangeIndex==i )
+                            option.selected = true
+                        return option
+                    })
+                }</select>
+                <hr/>
+                <div name="graphDiv"></div>
+            </center>)
+
+            const openTime = Math.max( this.openTime.getTime(), trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE))
             const closeTime = trends.reduce((a,b)=>Math.max(a,b.trend.data.last.close.getTime()),Number.MIN_VALUE)
 
             let rulerAdded = false
 
-            trends.forEach(t=> {
+            const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
+            trends.map(t=> {
                 if( !setting.AppSetting.shared.prioritySet.has(t.baseAsset) ){
                     if( !rulerAdded ){
-                        const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
                         graphDiv.appendChild(<hr/>)
                         rulerAdded = true
                     }
                 }
 
-                this.updateGraph(
+                graphDiv.appendChild(this.createGraph(
                     t.baseAsset,
                     setting.AppSetting.shared.quoteAsset,
                     t.trend,
@@ -53,8 +118,8 @@ namespace mycrypcryp { export namespace scene {
                         open: new Date(openTime),
                         close: new Date(closeTime)
                     }
-                )
-            });
+                ))
+            })
 
             manager.LoadingManager.shared.end()
         }
@@ -63,19 +128,13 @@ namespace mycrypcryp { export namespace scene {
             this.currentConversion = await com.danborutori.cryptoApi.CryptoCompare.shared.getPrice(setting.AppSetting.shared.quoteAsset,setting.AppSetting.shared.currency)
         }
 
-        private displayCurrentConversion(){
-            const label = this.htmlElement.querySelector("div[name=usdthkdLabel]") as HTMLDivElement
-            label.innerHTML = `1 ${setting.AppSetting.shared.quoteAsset} = ${this.currentConversion} ${setting.AppSetting.shared.currency}`
-        }
-
-        private async getTrends( baseAssets: string[], startTime: Date ){
+        private async getTrends( baseAssets: string[]){
 
             const trends = (await Promise.all( baseAssets.map( async baseAsset=>{
                 const data = await com.danborutori.cryptoApi.Binance.shared.getKlineCandlestickData(
                     `${baseAsset}${setting.AppSetting.shared.quoteAsset}`,
                     this.interval,
                     {
-                        startTime: startTime.getTime(),
                         limit: limit
                     }
                 )
@@ -106,7 +165,7 @@ namespace mycrypcryp { export namespace scene {
             return trends
         }
 
-        private updateGraph(
+        private createGraph(
             baseAsset: string,
             quoteAsset: string,
             trend: helper.TrendWatcher,
@@ -126,8 +185,7 @@ namespace mycrypcryp { export namespace scene {
 
             graph.render()
 
-            const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
-            graphDiv.appendChild(<div><b>{baseAsset}</b><br/>{graph.htmlElement}<br/><br/></div>)
+            return <div><b>{baseAsset}</b><br/>{graph.htmlElement}<br/><br/></div>
         }
     }
 

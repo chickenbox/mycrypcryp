@@ -81,8 +81,8 @@ namespace mycrypcryp { export namespace view {
 
             const from = this.htmlElement.querySelector("div[name=from]") as HTMLDivElement
             const to = this.htmlElement.querySelector("div[name=to]") as HTMLDivElement
-            from.innerText = moment( trend.data.first.time ).format("MMMyyyy")
-            to.innerText = moment( trend.data.last.time ).format("MMMyyyy")
+            from.innerText = moment( this.range.open ).format("MMMyyyy")
+            to.innerText = moment( this.range.close ).format("MMMyyyy")
         }
     }
 
