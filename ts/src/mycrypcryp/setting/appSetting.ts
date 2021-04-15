@@ -5,6 +5,7 @@ namespace mycrypcryp { export namespace setting {
 
         currency = "HKD"
         quoteAsset = "USDT"     // default quota asset
+        prioritySet = new Set(["BTC", "ETH", "USDT"])
     }
 
 }}

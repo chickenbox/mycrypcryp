@@ -78,7 +78,14 @@ namespace mycrypcryp { export namespace scene {
                 }
             }))).filter(a=>a)
 
-            trends.sort((a,b)=>Math.abs(a.trend.lastDDataDt)-Math.abs(b.trend.lastDDataDt))
+            trends.sort((a,b)=>{
+                const cmp = (setting.AppSetting.shared.prioritySet.has(a.baseAsset)?-1:1) - 
+                (setting.AppSetting.shared.prioritySet.has(b.baseAsset)?-1:1)
+                if( cmp!=0 )
+                    return cmp
+
+                return Math.abs(a.trend.lastDDataDt)-Math.abs(b.trend.lastDDataDt)
+            })
 
             return trends
         }
