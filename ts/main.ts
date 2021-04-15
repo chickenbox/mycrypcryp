@@ -5,7 +5,6 @@ namespace mycrypcryp {
             console.log("started")
 
             const api = new danborutori.binance.Binance()
-            console.log( await api.getAccountInfo() )
         }
     }
 
