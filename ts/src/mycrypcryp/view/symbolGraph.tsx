@@ -54,7 +54,7 @@ namespace mycrypcryp { export namespace view {
             const width = (trend.data.last.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())-x
 
             const drawer = new com.danborutori.cryptoApi.util.GraphicDrawer(canvas)
-            drawer.drawGrid(trend.data.length, x, width)
+            // drawer.drawGrid(trend.data.length, x, width)
             drawer.draw( trend.data.map(d=>d.price), "red", x, width )
             drawer.draw( trend.normalizedSmoothedData.map(d=>d.price), "green", x, width )
             drawer.visualizeTurningPoint(trend.normalizedSmoothedData.map((d,i)=>{

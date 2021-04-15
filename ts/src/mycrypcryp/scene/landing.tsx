@@ -1,7 +1,7 @@
 namespace mycrypcryp { export namespace scene { 
 
     const smoothItr = 10
-    const interval: com.danborutori.cryptoApi.Interval = "1w"
+    const interval: com.danborutori.cryptoApi.Interval = "1M"
     const limit = 1000
     const minimumSample = 20
 
