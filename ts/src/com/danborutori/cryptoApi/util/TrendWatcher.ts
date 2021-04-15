@@ -2,6 +2,8 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
     interface DataEntry {
         readonly price: number
         readonly time: Date
+        readonly open: Date
+        readonly close: Date
     }
 
     function normalizeData( data: DataEntry[] ){
@@ -12,7 +14,9 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
             return data.map( d=>{
                 return {
                     price: (d.price-min)/(max-min),
-                    time: d.time
+                    time: d.time,
+                    open: d.open,
+                    close: d.close
                 }
             })
         }else{
@@ -37,7 +41,9 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                 }
                 return {
                     price: r/cnt,
-                    time: d.time
+                    time: d.time,
+                    open: d.open,
+                    close: d.close
                 }
             })
         }

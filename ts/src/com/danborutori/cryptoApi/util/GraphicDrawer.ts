@@ -12,20 +12,20 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
             ctx.lineWidth = 1
         }
 
-        drawGrid( segment: number ){
+        drawGrid( segment: number, x: number, width: number ){
             const ctx = this.canvas.getContext("2d")
             ctx.lineWidth = 1
             ctx.strokeStyle = "#eeeeee"
             ctx.beginPath()
             for( let i=0; i<segment; i++ ){
-                const x = i*this.canvas.width/(segment-1)
-                ctx.moveTo(x,0)
-                ctx.lineTo(x,this.canvas.height)
+                const _x = x+i*width/(segment-1)
+                ctx.moveTo(_x,0)
+                ctx.lineTo(_x,this.canvas.height)
             }
             ctx.stroke()
         }
 
-        draw( data: number[], color: string){
+        draw( data: number[], color: string, x: number, width: number ){
             if( data.length>0 ){
                 const maxD = data.reduce((a,b)=>Math.max(a,b), data[0])
                 const minD = data.reduce((a,b)=>Math.min(a,b), data[0])
@@ -33,6 +33,7 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                 const ctx = this.canvas.getContext("2d")
                 ctx.lineWidth = 1
 
+                // x-axis
                 ctx.strokeStyle = color
                 ctx.setLineDash([4,4])
                 ctx.beginPath()
@@ -47,13 +48,13 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                 for( let i=0; i<data.length; i++ ){
                     const d = data[i]
 
-                    const x = i*this.canvas.width/(data.length-1)
+                    const _x = x+i*width/(data.length-1)
                     const y = (1.0-(d-minD)/(maxD-minD))*this.canvas.height
 
                     if( i== 0 ){
-                        ctx.moveTo(x, y)
+                        ctx.moveTo(_x, y)
                     }else{
-                        ctx.lineTo(x, y)
+                        ctx.lineTo(_x, y)
                     }
                 }
                 ctx.stroke()
@@ -65,7 +66,8 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                 value: number,
                 dvdx: number
                 dvddx: number
-            }[]
+            }[],
+            x: number, width: number 
         ){
             if( data.length>0 ){
                 const min = data.reduce((a,b)=>Math.min(a,b.value), data[0].value)
@@ -97,12 +99,12 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                     }
 
                     if( arrow ) {
-                        const x = i*this.canvas.width/(data.length-1)
+                        const _x = x+i*width/(data.length-1)
                         const y = (1-(data[i].value-min)/(max-min))*this.canvas.height
 
                         ctx.fillStyle = arrow.color
                         ctx.textAlign = "center"
-                        ctx.fillText(arrow.text,x,y)
+                        ctx.fillText(arrow.text,_x,y)
                     }
                 }
             }

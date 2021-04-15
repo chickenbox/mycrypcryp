@@ -26,11 +26,18 @@ namespace mycrypcryp { export namespace scene {
             const filteredSymbols = info.symbols.filter(sym=>sym.quoteAsset==setting.AppSetting.shared.quoteAsset)
             const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
 
+            const openTime = trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE)
+            const closeTime = trends.reduce((a,b)=>Math.max(a,b.trend.data.last.close.getTime()),Number.MIN_VALUE)
+
             trends.forEach(t=> {
                 this.updateGraph(
                     t.baseAsset,
                     setting.AppSetting.shared.quoteAsset,
-                    t.trend
+                    t.trend,
+                    {
+                        open: new Date(openTime),
+                        close: new Date(closeTime)
+                    }
                 )
             });
 
@@ -63,7 +70,9 @@ namespace mycrypcryp { export namespace scene {
                     trend: new com.danborutori.cryptoApi.util.TrendWatcher(data.map( d=>{
                         return {
                             price: (d.low+d.high)/2,
-                            time: d.openTime
+                            time: new Date((d.openTime.getTime()+d.closeTime.getTime())/2),
+                            open: d.openTime,
+                            close: d.closeTime
                         }
                     }), smoothItr)
                 }
@@ -74,13 +83,21 @@ namespace mycrypcryp { export namespace scene {
             return trends
         }
 
-        private async updateGraph( baseAsset: string, quoteAsset: string, trend: com.danborutori.cryptoApi.util.TrendWatcher ){
+        private async updateGraph(
+            baseAsset: string,
+            quoteAsset: string,
+            trend: com.danborutori.cryptoApi.util.TrendWatcher,
+            range: {
+                open: Date
+                close: Date
+            } ){
             await this.updateCurrentConversion()
             this.updateCurrentConvension()
 
             const graph = new view.SymbolGraph(
                 quoteAsset,
                 trend,
+                range,
                 {
                     currency: setting.AppSetting.shared.currency,
                     ratio: await com.danborutori.cryptoApi.CryptoCompare.shared.getPrice(quoteAsset,setting.AppSetting.shared.currency)

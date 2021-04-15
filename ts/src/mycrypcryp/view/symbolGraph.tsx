@@ -19,6 +19,10 @@ namespace mycrypcryp { export namespace view {
         constructor(
             readonly quoteAsset: string,
             readonly trend: com.danborutori.cryptoApi.util.TrendWatcher,
+            readonly range: {
+                open: Date
+                close: Date
+            },
             readonly quoteToCurrency: {
                 currency: string
                 ratio: number
@@ -46,17 +50,20 @@ namespace mycrypcryp { export namespace view {
             const trend = this.trend
             this.updateInfo(trend)
 
+            const x = (trend.data.first.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())
+            const width = (trend.data.last.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())-x
+
             const drawer = new com.danborutori.cryptoApi.util.GraphicDrawer(canvas)
-            drawer.drawGrid(trend.data.length)
-            drawer.draw( trend.data.map(d=>d.price), "red" )
-            drawer.draw( trend.normalizedSmoothedData.map(d=>d.price), "green" )
+            drawer.drawGrid(trend.data.length, x, width)
+            drawer.draw( trend.data.map(d=>d.price), "red", x, width )
+            drawer.draw( trend.normalizedSmoothedData.map(d=>d.price), "green", x, width )
             drawer.visualizeTurningPoint(trend.normalizedSmoothedData.map((d,i)=>{
                 return {
                     value: d.price,
                     dvdx: trend.dDataDt[i],
                     dvddx: trend.dDataDDt[i]
                 }
-            }))
+            }), x, width)
 
             const from = this.htmlElement.querySelector("div[name=from]") as HTMLDivElement
             const to = this.htmlElement.querySelector("div[name=to]") as HTMLDivElement
