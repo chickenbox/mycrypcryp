@@ -46,7 +46,7 @@ namespace mycrypcryp { export namespace scene {
 
     export class Landing {
         private currentConversion = 0
-        private interval: com.danborutori.cryptoApi.Interval = "1M"
+        private interval: com.danborutori.cryptoApi.Interval = "1w"
         private currentRangeIndex = 0
         private openTime = rangeOptions[0].dateFunc()
 
