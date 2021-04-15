@@ -3,7 +3,7 @@
         "target": "ES6",
         "module": "amd",
         "jsx": "react",
-        "reactNamespace": "React",
+        "reactNamespace": "DanborutoriReact",
         "accessorOptimization": true,
         "reorderFiles": true,        
         "outFile": "../build/all.js",
@@ -12,7 +12,8 @@
         ]
     },  
     "includes": [
-        "src/**/*",
+        "src/**/*.ts",
+        "src/**/*.tsx",
         "../bower_components/**/*.d.ts"
     ]
 }

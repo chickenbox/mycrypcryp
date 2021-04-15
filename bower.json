@@ -1,0 +1,20 @@
+{
+  "name": "mycrypcryp",
+  "homepage": "https://github.com/chickenbox/mycrypcryp",
+  "authors": [
+    "danborutori"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "moment": "^2.29.1"
+  }
+}
