@@ -27,7 +27,28 @@ namespace mycrypcryp { export namespace view {
                 currency: string
                 ratio: number
             }
-        ){                
+        ){
+            const canvas = this.htmlElement.querySelector("canvas[name=graphCanvas]") as HTMLCanvasElement
+            canvas.addEventListener("mousemove", ev=>{
+                this.onMouseMove(ev.offsetX)
+            }, { passive: true })
+            canvas.addEventListener("mouseout", ev=>{
+                this.onMouseOut()
+            }, {passive:true})            
+            canvas.addEventListener("mouseleave", ev=>{
+                this.onMouseOut()
+            }, {passive:true})            
+            canvas.addEventListener("pointermove", ev=>{
+                this.onMouseMove(ev.offsetX)
+            }, { passive: true })  
+            canvas.addEventListener("pointerleave", ev=>{
+                this.onMouseOut()
+            }, {passive:true})            
+            canvas.addEventListener("pointerout", ev=>{
+                this.onMouseOut()
+            }, {passive:true})            
+
+
         }
 
         update( range: {
@@ -56,7 +77,15 @@ namespace mycrypcryp { export namespace view {
         }
 
         render(){
+            this.renderGraph()
 
+            const from = this.htmlElement.querySelector("div[name=from]") as HTMLDivElement
+            const to = this.htmlElement.querySelector("div[name=to]") as HTMLDivElement
+            from.innerText = moment( this.range.open ).format("MMMyyyy")
+            to.innerText = moment( this.range.close ).format("MMMyyyy")
+        }
+
+        private renderGraph( rulerX?: number ){
             const canvas = this.htmlElement.querySelector("canvas[name=graphCanvas]") as HTMLCanvasElement
 
             const trend = this.trend
@@ -93,10 +122,24 @@ namespace mycrypcryp { export namespace view {
             trend.normalized.high,
             trend.normalized.low)
 
-            const from = this.htmlElement.querySelector("div[name=from]") as HTMLDivElement
-            const to = this.htmlElement.querySelector("div[name=to]") as HTMLDivElement
-            from.innerText = moment( this.range.open ).format("MMMyyyy")
-            to.innerText = moment( this.range.close ).format("MMMyyyy")
+            if( rulerX!=undefined ){
+                const ctx = canvas.getContext("2d")
+
+                ctx.strokeStyle = "black"
+                ctx.lineWidth = 1
+                ctx.beginPath()
+                ctx.moveTo( rulerX, 0)
+                ctx.lineTo( rulerX, canvas.height)
+                ctx.stroke()
+            }
+        }
+
+        private onMouseMove(x: number){
+            this.renderGraph(x)
+        }
+
+        private onMouseOut(){
+            this.renderGraph()
         }
     }
 
