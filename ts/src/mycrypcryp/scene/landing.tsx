@@ -133,13 +133,6 @@ namespace mycrypcryp { export namespace scene {
             const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
             const graphs = trends.map(t=> {
                 const isFavourite = setting.AppSetting.shared.favourite.has(t.baseAsset)
-                if( !isFavourite ){
-                    if( !rulerAdded ){
-                        graphDiv.appendChild(<hr/>)
-                        rulerAdded = true
-                    }
-                }
-
                 return this.createGraph(
                     t.baseAsset,
                     setting.AppSetting.shared.quoteAsset,
@@ -152,6 +145,13 @@ namespace mycrypcryp { export namespace scene {
                 )
             })
             graphs.forEach( g=>{
+                if( !g.isFavourite ){
+                    if( !rulerAdded ){
+                        graphDiv.appendChild(<hr/>)
+                        rulerAdded = true
+                    }
+                }
+
                 graphDiv.appendChild( g.element )
                 graphDiv.appendChild(<br/>)
             })
@@ -242,7 +242,8 @@ namespace mycrypcryp { export namespace scene {
                     </div>
                     {graph.htmlElement}<br/><br/>
                 </div>,
-                graph: graph
+                graph: graph,
+                isFavourite: isFavourite
             }
         }
     }
