@@ -1,6 +1,6 @@
-namespace com { export namespace danborutori { export namespace cryptoApi { export namespace util {
+namespace mycrypcryp { export namespace helper {
 
-    export class GraphicDrawer {
+    export class GraphDrawer {
 
         constructor(
             readonly canvas: HTMLCanvasElement
@@ -25,11 +25,14 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
             ctx.stroke()
         }
 
-        draw( data: number[], color: string, x: number, width: number ){
-            if( data.length>0 ){
-                const maxD = data.reduce((a,b)=>Math.max(a,b), data[0])
-                const minD = data.reduce((a,b)=>Math.min(a,b), data[0])
-
+        drawCurve(
+            data: number[],
+            color: string,
+            x: number,
+            width: number,
+            high: number,
+            low: number ){
+            if( data.length>0 ){                
                 const ctx = this.canvas.getContext("2d")
                 ctx.lineWidth = 1
 
@@ -37,8 +40,8 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                 ctx.strokeStyle = color
                 ctx.setLineDash([4,4])
                 ctx.beginPath()
-                ctx.moveTo(0,(1+minD/(maxD-minD))*this.canvas.height)
-                ctx.lineTo(this.canvas.width,(1+minD/(maxD-minD))*this.canvas.height)
+                ctx.moveTo(0,(1+low/(high-low))*this.canvas.height)
+                ctx.lineTo(this.canvas.width,(1+low/(high-low))*this.canvas.height)
                 ctx.stroke()
 
 
@@ -49,7 +52,7 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
                     const d = data[i]
 
                     const _x = x+i*width/(data.length-1)
-                    const y = (1.0-(d-minD)/(maxD-minD))*this.canvas.height
+                    const y = (1.0-(d-low)/(high-low))*this.canvas.height
 
                     if( i== 0 ){
                         ctx.moveTo(_x, y)
@@ -111,4 +114,4 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
         }
     }
 
-}}}}
+}}

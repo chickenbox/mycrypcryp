@@ -18,7 +18,7 @@ namespace mycrypcryp { export namespace view {
 
         constructor(
             readonly quoteAsset: string,
-            readonly trend: com.danborutori.cryptoApi.util.TrendWatcher,
+            readonly trend: helper.TrendWatcher,
             readonly range: {
                 open: Date
                 close: Date
@@ -30,7 +30,7 @@ namespace mycrypcryp { export namespace view {
         ){                
         }
 
-        private updateInfo( trend: com.danborutori.cryptoApi.util.TrendWatcher ){
+        private updateInfo( trend: helper.TrendWatcher ){
             const infoDiv = this.htmlElement.querySelector("div[name=info]") as HTMLDivElement
 
             const high = trend.data.reduce((a,b)=>Math.max(a,b.price),trend.data[0].price)
@@ -51,12 +51,26 @@ namespace mycrypcryp { export namespace view {
             this.updateInfo(trend)
 
             const x = (trend.data.first.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())
-            const width = (trend.data.last.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())-x
+            const width = ((trend.data.last.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())-x)
 
-            const drawer = new com.danborutori.cryptoApi.util.GraphicDrawer(canvas)
+            const drawer = new helper.GraphDrawer(canvas)
             // drawer.drawGrid(trend.data.length, x, width)
-            drawer.draw( trend.data.map(d=>d.price), "red", x, width )
-            drawer.draw( trend.normalizedSmoothedData.map(d=>d.price), "green", x, width )
+            drawer.drawCurve(
+                trend.data.map(d=>d.price),
+                "red",
+                x,
+                width,
+                trend.data.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
+                trend.data.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE)
+            )
+            drawer.drawCurve(
+                trend.normalizedSmoothedData.map(d=>d.price),
+                "green",
+                x,
+                width,
+                trend.normalized.high,
+                trend.normalized.low
+            )
             drawer.visualizeTurningPoint(trend.normalizedSmoothedData.map((d,i)=>{
                 return {
                     value: d.price,

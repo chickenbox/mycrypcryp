@@ -1,4 +1,4 @@
-namespace com { export namespace danborutori { export namespace cryptoApi { export namespace util {
+namespace mycrypcryp { export namespace helper {
     interface DataEntry {
         readonly price: number
         readonly time: Date
@@ -69,6 +69,10 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
     export class TrendWatcher {
 
         readonly data: DataEntry[]
+        readonly normalized: {
+            high: number
+            low: number
+        }
         readonly normalizedSmoothedData: DataEntry[]
         readonly dDataDt: number[]
         readonly dDataDDt: number[]
@@ -78,7 +82,12 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
             smoothItr: number = 0
         ){
             this.data = data
-            this.normalizedSmoothedData = smoothData( normalizeData(data), smoothItr )
+            const normalizedData = normalizeData(data)
+            this.normalized = {
+                high: normalizedData.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
+                low: normalizedData.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE)
+            }
+            this.normalizedSmoothedData = smoothData( normalizedData, smoothItr )
 
             this.dDataDt = dDataDT(this.normalizedSmoothedData.map(d=>d.price))
             this.dDataDDt = dDataDT(this.dDataDt)
@@ -90,4 +99,4 @@ namespace com { export namespace danborutori { export namespace cryptoApi { expo
         }
     }
 
-}}}}
+}}

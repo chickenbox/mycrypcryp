@@ -80,7 +80,7 @@ namespace mycrypcryp { export namespace scene {
 
                 return {
                     baseAsset: baseAsset,
-                    trend: new com.danborutori.cryptoApi.util.TrendWatcher(data.map( d=>{
+                    trend: new helper.TrendWatcher(data.map( d=>{
                         return {
                             price: (d.low+d.high)/2,
                             time: new Date((d.openTime.getTime()+d.closeTime.getTime())/2),
@@ -106,7 +106,7 @@ namespace mycrypcryp { export namespace scene {
         private updateGraph(
             baseAsset: string,
             quoteAsset: string,
-            trend: com.danborutori.cryptoApi.util.TrendWatcher,
+            trend: helper.TrendWatcher,
             range: {
                 open: Date
                 close: Date
