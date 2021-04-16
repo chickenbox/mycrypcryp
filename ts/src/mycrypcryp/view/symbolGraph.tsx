@@ -79,6 +79,7 @@ namespace mycrypcryp { export namespace view {
                 H/L: {(high/low).toFixed(5)} samples: {trend.data.length}<br/>
                 high: {(high*this.quoteToCurrency.ratio).toFixed(5)}{this.quoteToCurrency.currency}<br/>
                 low: {(low*this.quoteToCurrency.ratio).toFixed(5)}{this.quoteToCurrency.currency}<br/>
+                last proj: {(trend.lastProjectedPrice*this.quoteToCurrency.ratio).toFixed(5)}
             </div>)
         }
 

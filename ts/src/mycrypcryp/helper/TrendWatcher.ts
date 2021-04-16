@@ -77,6 +77,20 @@ namespace mycrypcryp { export namespace helper {
         readonly dDataDt: number[]
         readonly dDataDDt: number[]
 
+        get high(){
+            return this.data.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE)
+        }
+
+        get low(){
+            return this.data.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE)
+        }
+
+        get lastProjectedPrice(){
+            const high = this.high
+            const low = this.low
+            return this.normalized.smoothedData.last.price*(high-low)+low
+        }
+
         constructor(
             data: DataEntry[],
             smoothItr: number = 0
