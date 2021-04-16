@@ -57,7 +57,7 @@ namespace mycrypcryp { export namespace view {
             // drawer.drawGrid(trend.data.length, x, width)
             drawer.drawCurve(
                 trend.data.map(d=>d.price),
-                "red",
+                "grey",
                 x,
                 width,
                 trend.data.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
