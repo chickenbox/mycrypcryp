@@ -32,13 +32,27 @@ namespace mycrypcryp { export namespace setting {
             }
         }
 
-        commit(){
+        private updateInternalData(){
             this._data.favourite = Array.from(this.favourite.keys())
             this._data.markers = this._data.markers || {}
             for( let e of this.markers){
                 this._data.markers[e[0]] = e[1].map(d=>d.getTime())
             }
+        }
+
+        commit(){
+            this.updateInternalData()
             localStorage.setItem(this.localStorageKey, JSON.stringify(this._data))
+        }
+
+        export(){
+            this.updateInternalData()
+            return btoa(JSON.stringify(this._data))
+        }
+
+        import( setting: string ){
+            localStorage.setItem(this.localStorageKey, atob(setting))
+            location.reload()
         }
     }
 
