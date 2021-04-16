@@ -13,7 +13,7 @@ namespace mycrypcryp { export namespace setting {
         static readonly shared = new AppSetting()
 
         private localStorageKey = "mycrypcryp.setting.AppSetting.data"
-        private _data: AppSettingData = JSON.parse( localStorage.getItem(this.localStorageKey) ) || {}
+        private _data: AppSettingData
 
         get currency(){
             return this._data.currency || "HKD"
@@ -23,10 +23,16 @@ namespace mycrypcryp { export namespace setting {
             return this._data.quoteAsset || "USDT"
         }
 
-        readonly favourite = new Set(this._data.favourite || ["BTC", "ETH", "PAXG"])
+        readonly favourite: Set<string>
         readonly markers = new Map<string,Date[]>()
 
         constructor(){
+            try{
+                this._data = JSON.parse( localStorage.getItem(this.localStorageKey) ) || {}
+            }catch{
+                this._data = {}
+            }
+            this.favourite = new Set(this._data.favourite || ["BTC", "ETH", "PAXG"])
             for( let baseAsset in this._data.markers || {} ){
                 this.markers.set( baseAsset, this._data.markers[baseAsset].map(i=>new Date(i)) )
             }

@@ -42,7 +42,7 @@ namespace mycrypcryp { export namespace view {
                         manager.LoadingManager.shared.end()
                     }}/><input type="button" value="import" onclick={ev=>{
                         const settingString = prompt("Please paste setting string here:")
-                        setting.AppSetting.shared.import(settingString)
+                        settingString && setting.AppSetting.shared.import(settingString)
                     }}/>
                 </div>)
             }else{
