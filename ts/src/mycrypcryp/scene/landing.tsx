@@ -60,6 +60,7 @@ namespace mycrypcryp { export namespace scene {
         readonly htmlElement = <div style="position: relative;"></div> as HTMLDivElement
 
         private trends: AssetEntry[] = []
+        private graphs: view.SymbolGraph[] = []
 
 
         constructor(){
@@ -103,13 +104,14 @@ namespace mycrypcryp { export namespace scene {
 
             this.htmlElement.innerHTML = ""
             this.htmlElement.appendChild(<center>
+                <div name="header">
                 1 {setting.AppSetting.shared.quoteAsset} = {this.currentConversion} {setting.AppSetting.shared.currency}<br/>
                 <br/>
                 range: <select onchange={ev=>{
                     const select = ev.target as HTMLSelectElement
                     this.currentRangeIndex = select.selectedIndex
                     this.openTime =  rangeOptions[select.selectedIndex].dateFunc()
-                    this.refresh()
+                    this.redraw(trends)
                 }}>{
                     rangeOptions.map((opt, i)=>{
                         const option = <option>{opt.title}</option> as HTMLOptionElement
@@ -119,7 +121,8 @@ namespace mycrypcryp { export namespace scene {
                     })
                 }</select>
                 <hr/>
-                <div name="graphDiv"></div>
+                </div>
+                <div name="graphDiv" style="overflow-y: scroll;"></div>
             </center>)
 
             const openTime = Math.max( this.openTime.getTime(), trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE))
@@ -128,7 +131,7 @@ namespace mycrypcryp { export namespace scene {
             let rulerAdded = false
 
             const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
-            trends.map(t=> {
+            const graphs = trends.map(t=> {
                 const isFavourite = setting.AppSetting.shared.favourite.has(t.baseAsset)
                 if( !isFavourite ){
                     if( !rulerAdded ){
@@ -137,7 +140,7 @@ namespace mycrypcryp { export namespace scene {
                     }
                 }
 
-                graphDiv.appendChild(this.createGraph(
+                return this.createGraph(
                     t.baseAsset,
                     setting.AppSetting.shared.quoteAsset,
                     t.trend,
@@ -146,15 +149,33 @@ namespace mycrypcryp { export namespace scene {
                         close: new Date(closeTime)
                     },
                     isFavourite
-                ))
+                )
+            })
+            graphs.forEach( g=>{
+                graphDiv.appendChild( g.element )
                 graphDiv.appendChild(<br/>)
             })
+            this.graphs = graphs.map( g=>g.graph )
 
             this.htmlElement.appendChild(this.infoPanel.htmlElement)
+
+            const header = this.htmlElement.querySelector("div[name=header]") as HTMLDivElement
+            const rect = header.getBoundingClientRect()
+            graphDiv.style.height = `${innerHeight-rect.height-30}px`
         }
 
         private async getCurrentConversion(){
             this.currentConversion = await com.danborutori.cryptoApi.CryptoCompare.shared.getPrice(setting.AppSetting.shared.quoteAsset,setting.AppSetting.shared.currency)
+        }
+
+        private redraw(trends: AssetEntry[]){
+            const openTime = Math.max( this.openTime.getTime(), trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE))
+            const closeTime = trends.reduce((a,b)=>Math.max(a,b.trend.data.last.close.getTime()),Number.MIN_VALUE)
+
+            this.graphs.forEach(g=>g.update({
+                open: new Date(openTime),
+                close:  new Date(closeTime)
+            }))
         }
 
         private async getTrends( baseAssets: string[]){
@@ -206,20 +227,23 @@ namespace mycrypcryp { export namespace scene {
 
             graph.render()
 
-            return <div style="display: inline-block;">
-                <div align="left">
-                <b>{baseAsset}</b><input onclick={ev=>{
-                    if( setting.AppSetting.shared.favourite.has(baseAsset)){
-                        setting.AppSetting.shared.favourite.delete(baseAsset)
-                    }else{
-                        setting.AppSetting.shared.favourite.add(baseAsset)
-                    }
-                    setting.AppSetting.shared.commit()
-                    this.refresh()
-                }}type="button" value={isFavourite?"★":"☆"} style="float: right;"></input>
-                </div>
-                {graph.htmlElement}<br/><br/>
-            </div>
+            return {
+                element: <div style="display: inline-block;">
+                    <div align="left">
+                    <b>{baseAsset}</b><input onclick={ev=>{
+                        if( setting.AppSetting.shared.favourite.has(baseAsset)){
+                            setting.AppSetting.shared.favourite.delete(baseAsset)
+                        }else{
+                            setting.AppSetting.shared.favourite.add(baseAsset)
+                        }
+                        setting.AppSetting.shared.commit()
+                        this.refresh()
+                    }}type="button" value={isFavourite?"★":"☆"} style="float: right;"></input>
+                    </div>
+                    {graph.htmlElement}<br/><br/>
+                </div>,
+                graph: graph
+            }
         }
     }
 
