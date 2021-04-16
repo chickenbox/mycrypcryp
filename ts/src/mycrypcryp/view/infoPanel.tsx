@@ -33,6 +33,8 @@ namespace mycrypcryp { export namespace view {
                     info<br/>
                     interval: {this.interval} limit: {this.limit}<br/>
                     smoothItr: {this.smoothItr} minimum sample: {this.minimumSample}<br/>
+                    <br/>
+                    <font size="2">version {version}</font>
                 </div>)
             }else{
                 this.htmlElement.innerHTML = "info"
