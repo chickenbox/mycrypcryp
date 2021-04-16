@@ -6,7 +6,7 @@ namespace mycrypcryp { export namespace scene {
 
     interface BaseTrend {
         baseAsset: string
-        trend: com.danborutori.cryptoApi.util.TrendWatcher
+        trend: helper.TrendWatcher
     }
 
     const rangeOptions = [
