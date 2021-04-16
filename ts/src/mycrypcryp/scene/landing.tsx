@@ -45,12 +45,14 @@ namespace mycrypcryp { export namespace scene {
     ]
 
     export class Landing {
+        private infoPanel = new view.InfoPanel()
+
         private currentConversion = 0
         private interval: com.danborutori.cryptoApi.Interval = "1w"
         private currentRangeIndex = 0
         private openTime = rangeOptions[0].dateFunc()
 
-        readonly htmlElement = <div></div> as HTMLDivElement
+        readonly htmlElement = <div style="position: relative;"></div> as HTMLDivElement
 
 
         constructor(){
@@ -68,6 +70,12 @@ namespace mycrypcryp { export namespace scene {
             manager.LoadingManager.shared.end()
 
             this.refresh(trends)
+
+            this.infoPanel.htmlElement.style.position = "absolute"
+            this.infoPanel.htmlElement.style.top = "8"
+            this.infoPanel.htmlElement.style.right = "8"
+            this.infoPanel.set(this.interval, limit, smoothItr, minimumSample)
+            this.htmlElement.appendChild(this.infoPanel.htmlElement)
         }
 
         private async refresh( trends: BaseTrend[] ){            
@@ -78,7 +86,7 @@ namespace mycrypcryp { export namespace scene {
             this.htmlElement.innerHTML = ""
             this.htmlElement.appendChild(<center>
                 1 {setting.AppSetting.shared.quoteAsset} = {this.currentConversion} {setting.AppSetting.shared.currency}<br/>
-                interval: {this.interval} smoothItr: {smoothItr} limit: {limit} minimumSample: {minimumSample}<br/>
+                <br/>
                 range: <select onchange={ev=>{
                     const select = ev.target as HTMLSelectElement
                     this.currentRangeIndex = select.selectedIndex
@@ -120,6 +128,8 @@ namespace mycrypcryp { export namespace scene {
                     }
                 ))
             })
+
+            this.htmlElement.appendChild(this.infoPanel.htmlElement)
 
             manager.LoadingManager.shared.end()
         }
