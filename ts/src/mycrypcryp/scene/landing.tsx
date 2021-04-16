@@ -216,12 +216,16 @@ namespace mycrypcryp { export namespace scene {
             },
             isFavourite: boolean ){
             const graph = new view.SymbolGraph(
-                quoteAsset,
+                baseAsset,
                 trend,
                 range,
                 {
                     currency: setting.AppSetting.shared.currency,
                     ratio: this.currentConversion
+                },
+                (time, tolerance)=>{
+                    this.addOrRemoveMarker(baseAsset, tolerance, time)
+                    graph.renderGraph()
                 }
             )
 
@@ -245,6 +249,19 @@ namespace mycrypcryp { export namespace scene {
                 graph: graph,
                 isFavourite: isFavourite
             }
+        }
+
+        private addOrRemoveMarker(baseAsset: string, tolerance: number, time: Date){
+            const markers = setting.AppSetting.shared.markers.get(baseAsset) || []
+
+            const index = markers.findIndex( t=>Math.abs(t.getTime()-time.getTime())<=tolerance )
+            if( index>=0 ){
+                markers.remove(index)
+            }else{
+                markers.push( time )
+                setting.AppSetting.shared.markers.set(baseAsset, markers)
+            }
+            setting.AppSetting.shared.commit()
         }
     }
 

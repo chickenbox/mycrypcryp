@@ -17,7 +17,7 @@ namespace mycrypcryp { export namespace view {
         </div>
 
         constructor(
-            readonly quoteAsset: string,
+            readonly baseAsset,
             readonly trend: helper.TrendWatcher,
             readonly range: {
                 open: Date
@@ -26,18 +26,22 @@ namespace mycrypcryp { export namespace view {
             readonly quoteToCurrency: {
                 currency: string
                 ratio: number
-            }
+            },
+            readonly onClick: (time: Date, tolerance: number)=>void
         ){
             const canvas = this.htmlElement.querySelector("canvas[name=graphCanvas]") as HTMLCanvasElement
-            canvas.addEventListener("mousemove", ev=>{
-                this.onMouseMove(ev.offsetX)
-            }, { passive: true })
-            canvas.addEventListener("mouseout", ev=>{
-                this.onMouseOut()
-            }, {passive:true})            
-            canvas.addEventListener("mouseleave", ev=>{
-                this.onMouseOut()
-            }, {passive:true})            
+            // canvas.addEventListener("mousemove", ev=>{
+            //     this.onMouseMove(ev.offsetX)
+            // }, { passive: true })
+            // canvas.addEventListener("mouseout", ev=>{
+            //     this.onMouseOut()
+            // }, {passive:true})            
+            // canvas.addEventListener("mouseleave", ev=>{
+            //     this.onMouseOut()
+            // }, {passive:true})            
+            // canvas.addEventListener("mousedown", ev=>{
+            //     this.onMouseDown(ev.offsetX, ev.target as HTMLCanvasElement)
+            // }, { passive: true })  
             canvas.addEventListener("pointermove", ev=>{
                 this.onMouseMove(ev.offsetX)
             }, { passive: true })  
@@ -46,8 +50,10 @@ namespace mycrypcryp { export namespace view {
             }, {passive:true})            
             canvas.addEventListener("pointerout", ev=>{
                 this.onMouseOut()
-            }, {passive:true})            
-
+            }, {passive:true})
+            canvas.addEventListener("pointerdown", ev=>{
+                this.onMouseDown(ev.offsetX, ev.target as HTMLCanvasElement)
+            }, { passive: true })  
 
         }
 
@@ -85,7 +91,7 @@ namespace mycrypcryp { export namespace view {
             to.innerText = moment( this.range.close ).format("MMMyyyy")
         }
 
-        private renderGraph( rulerX?: number ){
+        renderGraph( rulerX?: number ){
             const canvas = this.htmlElement.querySelector("canvas[name=graphCanvas]") as HTMLCanvasElement
 
             const trend = this.trend
@@ -122,8 +128,22 @@ namespace mycrypcryp { export namespace view {
             trend.normalized.high,
             trend.normalized.low)
 
+            const ctx = canvas.getContext("2d")
+            // draw marker
+            const markers = setting.AppSetting.shared.markers.get(this.baseAsset) || []
+            for( let t of markers ){
+                ctx.strokeStyle = "#ffaaaa"
+                ctx.lineWidth = 1
+
+                const x = (t.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())
+
+                ctx.beginPath()
+                ctx.moveTo(x,0)
+                ctx.lineTo(x,canvas.height)
+                ctx.stroke()
+            }
+
             if( rulerX!=undefined ){
-                const ctx = canvas.getContext("2d")
 
                 ctx.strokeStyle = "black"
                 ctx.lineWidth = 1
@@ -140,6 +160,14 @@ namespace mycrypcryp { export namespace view {
 
         private onMouseOut(){
             this.renderGraph()
+        }
+
+        private onMouseDown( x: number, canvas: HTMLCanvasElement ){
+            const toleranceInPixel = 10
+            const time = new Date(x*(this.range.close.getTime()-this.range.open.getTime())/canvas.width+this.range.open.getTime())
+            const tolerance = (this.range.close.getTime()-this.range.open.getTime())*toleranceInPixel/canvas.width
+
+            this.onClick(time, tolerance)
         }
     }
 

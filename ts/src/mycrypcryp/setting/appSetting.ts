@@ -4,6 +4,9 @@ namespace mycrypcryp { export namespace setting {
         currency?: string
         quoteAsset?: string
         favourite?: string[]
+        markers?: {
+            [key: string]: number[]
+        }
     }
 
     export class AppSetting {
@@ -21,9 +24,20 @@ namespace mycrypcryp { export namespace setting {
         }
 
         readonly favourite = new Set(this._data.favourite || ["BTC", "ETH", "PAXG"])
+        readonly markers = new Map<string,Date[]>()
+
+        constructor(){
+            for( let baseAsset in this._data.markers || {} ){
+                this.markers.set( baseAsset, this._data.markers[baseAsset].map(i=>new Date(i)) )
+            }
+        }
 
         commit(){
             this._data.favourite = Array.from(this.favourite.keys())
+            this._data.markers = this._data.markers || {}
+            for( let e of this.markers){
+                this._data.markers[e[0]] = e[1].map(d=>d.getTime())
+            }
             localStorage.setItem(this.localStorageKey, JSON.stringify(this._data))
         }
     }
