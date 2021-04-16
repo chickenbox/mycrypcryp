@@ -44,6 +44,11 @@ namespace mycrypcryp { export namespace scene {
         }
     ]
 
+    interface AssetEntry {
+        baseAsset: string
+        trend: helper.TrendWatcher
+    }
+
     export class Landing {
         private infoPanel = new view.InfoPanel()
 
@@ -53,6 +58,8 @@ namespace mycrypcryp { export namespace scene {
         private openTime = rangeOptions[0].dateFunc()
 
         readonly htmlElement = <div style="position: relative;"></div> as HTMLDivElement
+
+        private trends: AssetEntry[] = []
 
 
         constructor(){
@@ -69,7 +76,8 @@ namespace mycrypcryp { export namespace scene {
 
             manager.LoadingManager.shared.end()
 
-            this.refresh(trends)
+            this.trends = trends
+            this.refresh()
 
             this.infoPanel.htmlElement.style.position = "absolute"
             this.infoPanel.htmlElement.style.top = "8"
@@ -78,10 +86,20 @@ namespace mycrypcryp { export namespace scene {
             this.htmlElement.appendChild(this.infoPanel.htmlElement)
         }
 
-        private async refresh( trends: BaseTrend[] ){            
+        private async refresh(){
             manager.LoadingManager.shared.begin()
-
             await this.getCurrentConversion()
+            manager.LoadingManager.shared.end()
+
+
+            const trends = this.trends.sort((a,b)=>{
+                const cmp = (setting.AppSetting.shared.favourite.has(a.baseAsset)?-1:1) - 
+                (setting.AppSetting.shared.favourite.has(b.baseAsset)?-1:1)
+                if( cmp!=0 )
+                    return cmp
+
+                return Math.abs(a.trend.lastDDataDt)-Math.abs(b.trend.lastDDataDt)
+            })
 
             this.htmlElement.innerHTML = ""
             this.htmlElement.appendChild(<center>
@@ -91,7 +109,7 @@ namespace mycrypcryp { export namespace scene {
                     const select = ev.target as HTMLSelectElement
                     this.currentRangeIndex = select.selectedIndex
                     this.openTime =  rangeOptions[select.selectedIndex].dateFunc()
-                    this.refresh(trends)
+                    this.refresh()
                 }}>{
                     rangeOptions.map((opt, i)=>{
                         const option = <option>{opt.title}</option> as HTMLOptionElement
@@ -111,7 +129,8 @@ namespace mycrypcryp { export namespace scene {
 
             const graphDiv = this.htmlElement.querySelector("div[name=graphDiv]") as HTMLDivElement
             trends.map(t=> {
-                if( !setting.AppSetting.shared.prioritySet.has(t.baseAsset) ){
+                const isFavourite = setting.AppSetting.shared.favourite.has(t.baseAsset)
+                if( !isFavourite ){
                     if( !rulerAdded ){
                         graphDiv.appendChild(<hr/>)
                         rulerAdded = true
@@ -125,13 +144,13 @@ namespace mycrypcryp { export namespace scene {
                     {
                         open: new Date(openTime),
                         close: new Date(closeTime)
-                    }
+                    },
+                    isFavourite
                 ))
+                graphDiv.appendChild(<br/>)
             })
 
             this.htmlElement.appendChild(this.infoPanel.htmlElement)
-
-            manager.LoadingManager.shared.end()
         }
 
         private async getCurrentConversion(){
@@ -163,15 +182,6 @@ namespace mycrypcryp { export namespace scene {
                 }
             }))).filter(a=>a)
 
-            trends.sort((a,b)=>{
-                const cmp = (setting.AppSetting.shared.prioritySet.has(a.baseAsset)?-1:1) - 
-                (setting.AppSetting.shared.prioritySet.has(b.baseAsset)?-1:1)
-                if( cmp!=0 )
-                    return cmp
-
-                return Math.abs(a.trend.lastDDataDt)-Math.abs(b.trend.lastDDataDt)
-            })
-
             return trends
         }
 
@@ -182,7 +192,8 @@ namespace mycrypcryp { export namespace scene {
             range: {
                 open: Date
                 close: Date
-            } ){
+            },
+            isFavourite: boolean ){
             const graph = new view.SymbolGraph(
                 quoteAsset,
                 trend,
@@ -195,7 +206,20 @@ namespace mycrypcryp { export namespace scene {
 
             graph.render()
 
-            return <div><b>{baseAsset}</b><br/>{graph.htmlElement}<br/><br/></div>
+            return <div style="display: inline-block;">
+                <div align="left">
+                <b>{baseAsset}</b><input onclick={ev=>{
+                    if( setting.AppSetting.shared.favourite.has(baseAsset)){
+                        setting.AppSetting.shared.favourite.delete(baseAsset)
+                    }else{
+                        setting.AppSetting.shared.favourite.add(baseAsset)
+                    }
+                    setting.AppSetting.shared.commit()
+                    this.refresh()
+                }}type="button" value={isFavourite?"★":"☆"} style="float: right;"></input>
+                </div>
+                {graph.htmlElement}<br/><br/>
+            </div>
         }
     }
 
