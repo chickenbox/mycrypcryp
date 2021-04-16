@@ -32,9 +32,10 @@ namespace mycrypcryp { export namespace view {
 
         private updateInfo( trend: helper.TrendWatcher ){
             const infoDiv = this.htmlElement.querySelector("div[name=info]") as HTMLDivElement
+            const bouncedData = trend.data.filter(d=>!(d.open>this.range.close || d.close<this.range.open))
 
-            const high = trend.data.reduce((a,b)=>Math.max(a,b.price),trend.data[0].price)
-            const low = trend.data.reduce((a,b)=>Math.min(a,b.price),trend.data[0].price)
+            const high = bouncedData.reduce((a,b)=>Math.max(a,b.price),Number.MIN_VALUE)
+            const low = bouncedData.reduce((a,b)=>Math.min(a,b.price),Number.MAX_VALUE)
 
             infoDiv.appendChild(<div>
                 H/L: {(high/low).toPrecision(3)} samples: {trend.data.length}<br/>
