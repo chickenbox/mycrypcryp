@@ -64,14 +64,14 @@ namespace mycrypcryp { export namespace view {
                 trend.data.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE)
             )
             drawer.drawCurve(
-                trend.normalizedSmoothedData.map(d=>d.price),
+                trend.normalized.smoothedData.map(d=>d.price),
                 "green",
                 x,
                 width,
                 trend.normalized.high,
                 trend.normalized.low
             )
-            drawer.visualizeTurningPoint(trend.normalizedSmoothedData.map((d,i)=>{
+            drawer.visualizeTurningPoint(trend.normalized.smoothedData.map((d,i)=>{
                 return {
                     value: d.price,
                     dvdx: trend.dDataDt[i],
