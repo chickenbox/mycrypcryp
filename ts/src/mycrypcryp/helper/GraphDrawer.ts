@@ -64,46 +64,69 @@ namespace mycrypcryp { export namespace helper {
             }
         }
 
+        private isTurningPoint( data: {
+            value: number,
+            dvdx: number
+            dvddx: number
+        }[], index: number ){
+            return index>0 && Math.sign(data[index].dvddx)*Math.sign(data[index-1].dvddx)<=0
+        }
+
+        private isPeak( data: {
+            value: number,
+            dvdx: number
+            dvddx: number
+        }[], index: number ){
+            return index>0 && Math.sign(data[index].dvdx)*Math.sign(data[index-1].dvdx)<=0 && data[index].dvddx <= 0
+        }
+
+        private isValley( data: {
+            value: number,
+            dvdx: number
+            dvddx: number
+        }[], index: number ){
+            return index>0 && Math.sign(data[index].dvdx)*Math.sign(data[index-1].dvdx)<=0 && data[index].dvddx > 0
+        }
+
         visualizeTurningPoint(
             data: {
                 value: number,
                 dvdx: number
                 dvddx: number
             }[],
-            x: number, width: number 
+            x: number, width: number,
+            high: number,
+            low: number
         ){
             if( data.length>0 ){
-                const min = data.reduce((a,b)=>Math.min(a,b.value), data[0].value)
-                const max = data.reduce((a,b)=>Math.max(a,b.value), data[0].value)
-
                 const ctx = this.canvas.getContext("2d")
 
                 for( let i=0; i<data.length; i++ ){
-                    let isTurningPoint = i>0 && Math.sign(data[i].dvddx)*Math.sign(data[i-1].dvddx)<=0
-                    let isPeak = i>0 && Math.sign(data[i].dvdx)*Math.sign(data[i-1].dvdx)<=0
-
                     let arrow: {
                         text: string
                         color: string
                     } | undefined
 
-                    if( isTurningPoint ){
+                    if( this.isTurningPoint(data, i) ){
                         arrow = {
                             text: "t",
-                            color: "red"
+                            color: "purple"
                         }
-                    }
-
-                    if( isPeak ){
+                    }else if( this.isPeak(data, i) ){
                         arrow = {
                             text: "p",
                             color: "green"
+                        }
+                    }else if( this.isValley(data, i) ){
+                        arrow = {
+                            text: "v",
+                            color: "red"
                         }
                     }
 
                     if( arrow ) {
                         const _x = x+i*width/(data.length-1)
-                        const y = (1-(data[i].value-min)/(max-min))*this.canvas.height
+                        const y = (1-(data[i].value-low)/(high-low))*this.canvas.height
 
                         ctx.fillStyle = arrow.color
                         ctx.textAlign = "center"

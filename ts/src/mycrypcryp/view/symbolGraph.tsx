@@ -77,7 +77,9 @@ namespace mycrypcryp { export namespace view {
                     dvdx: trend.dDataDt[i],
                     dvddx: trend.dDataDDt[i]
                 }
-            }), x, width)
+            }), x, width,
+            trend.normalized.high,
+            trend.normalized.low)
 
             const from = this.htmlElement.querySelector("div[name=from]") as HTMLDivElement
             const to = this.htmlElement.querySelector("div[name=to]") as HTMLDivElement
