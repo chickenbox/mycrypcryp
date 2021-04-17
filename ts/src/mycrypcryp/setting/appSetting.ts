@@ -29,7 +29,7 @@ namespace mycrypcryp { export namespace setting {
         constructor(){
             try{
                 this._data = JSON.parse( localStorage.getItem(this.localStorageKey) ) || {}
-            }catch{
+            }catch(_){
                 this._data = {}
             }
             this.favourite = new Set(this._data.favourite || ["BTC", "ETH", "PAXG"])

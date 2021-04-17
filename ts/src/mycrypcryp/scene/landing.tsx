@@ -72,7 +72,10 @@ namespace mycrypcryp { export namespace scene {
             manager.LoadingManager.shared.begin()
 
             const info = await com.danborutori.cryptoApi.Binance.shared.getExchangeInfo()
-            const filteredSymbols = info.symbols.filter(sym=>sym.quoteAsset==setting.AppSetting.shared.quoteAsset)
+            const filteredSymbols = info.symbols.filter(sym=>{
+                return sym.quoteAsset==setting.AppSetting.shared.quoteAsset &&
+                    !(sym.baseAsset.endsWith("UP") || sym.baseAsset.endsWith("DOWN"))
+            })
             const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
 
             manager.LoadingManager.shared.end()
