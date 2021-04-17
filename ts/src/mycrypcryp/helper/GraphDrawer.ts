@@ -14,7 +14,7 @@ namespace mycrypcryp { export namespace helper {
 
         drawGrid( segment: number, x: number, width: number ){
             const ctx = this.canvas.getContext("2d")
-            ctx.lineWidth = 1
+            ctx.lineWidth = devicePixelRatio
             ctx.strokeStyle = "#eeeeee"
             ctx.beginPath()
             for( let i=0; i<segment; i++ ){
@@ -34,11 +34,11 @@ namespace mycrypcryp { export namespace helper {
             low: number ){
             if( data.length>0 ){                
                 const ctx = this.canvas.getContext("2d")
-                ctx.lineWidth = 1
+                ctx.lineWidth = devicePixelRatio
 
                 // x-axis
                 ctx.strokeStyle = color
-                ctx.setLineDash([4,4])
+                ctx.setLineDash([4*devicePixelRatio,4*devicePixelRatio])
                 ctx.beginPath()
                 ctx.moveTo(0,(1+low/(high-low))*this.canvas.height)
                 ctx.lineTo(this.canvas.width,(1+low/(high-low))*this.canvas.height)
@@ -130,6 +130,7 @@ namespace mycrypcryp { export namespace helper {
 
                         ctx.fillStyle = arrow.color
                         ctx.textAlign = "center"
+                        ctx.font = `${10*devicePixelRatio}px sans-serif`;
                         ctx.fillText(arrow.text,_x,y)
                     }
                 }

@@ -3,7 +3,7 @@ namespace mycrypcryp { export namespace view {
     export class SymbolGraph {
         readonly htmlElement = <div style="display: inline-block">
             <div style="display: inline-block">
-                <canvas name="graphCanvas" width="200" height="100"></canvas>
+                <canvas name="graphCanvas" width={200*devicePixelRatio} height={100*devicePixelRatio} style="width: 200px; height: 100px;"></canvas>
                 <div>
                     <font size="2">
                     <div name="from" style="display: inline-block; float:left;">from 2</div>
@@ -134,7 +134,7 @@ namespace mycrypcryp { export namespace view {
             const markers = setting.AppSetting.shared.markers.get(this.baseAsset) || []
             for( let t of markers ){
                 ctx.strokeStyle = "#ffaaaa"
-                ctx.lineWidth = 1
+                ctx.lineWidth = devicePixelRatio
 
                 const x = (t.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())
 
@@ -147,7 +147,7 @@ namespace mycrypcryp { export namespace view {
             if( rulerX!=undefined ){
 
                 ctx.strokeStyle = "black"
-                ctx.lineWidth = 1
+                ctx.lineWidth = devicePixelRatio
                 ctx.beginPath()
                 ctx.moveTo( rulerX, 0)
                 ctx.lineTo( rulerX, canvas.height)
