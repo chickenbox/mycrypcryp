@@ -44,6 +44,20 @@ namespace com { export namespace danborutori { export namespace cryptoApi {
         }[]
     }
 
+    export interface KlineCandlestickData {
+        openTime: Date,
+        open: number,
+        high: number,
+        low: number,
+        close: number,
+        volume: number,
+        closeTime: Date,
+        quoteAssetVolume: number,
+        numberOfTrades: number,
+        takerBuyBaseAssetVolume: number,
+        takerBuyQuoteAssetVolume: number
+    }
+
     export class Binance {
         static shared = new Binance()
 
@@ -66,7 +80,7 @@ namespace com { export namespace danborutori { export namespace cryptoApi {
                 endTime?: number
                 limit? : number //Default 500; max 1000.
             }
-        ){
+        ): Promise<KlineCandlestickData[]>{
 
             const params = new URLSearchParams({
                 symbol: symbol,
@@ -90,7 +104,7 @@ namespace com { export namespace danborutori { export namespace cryptoApi {
                     volume: parseFloat( d[5] ),
                     closeTime: new Date(d[6]),
                     quoteAssetVolume: parseFloat(d[7]),
-                    numberOfTrades: d[8],
+                    numberOfTrades: parseInt( d[8] ),
                     takerBuyBaseAssetVolume: parseFloat(d[9]),
                     takerBuyQuoteAssetVolume: parseFloat(d[10])
                 }

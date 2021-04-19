@@ -67,6 +67,7 @@ namespace mycrypcryp { export namespace scene {
 
         readonly htmlElement = <div style="position: relative;"></div> as HTMLDivElement
 
+        private dataByBaseAsset =  new Map<string, com.danborutori.cryptoApi.KlineCandlestickData[]>()
         private trends: AssetEntry[] = []
         private graphs: view.SymbolGraph[] = []
 
@@ -85,7 +86,8 @@ namespace mycrypcryp { export namespace scene {
                     (setting.AppSetting.shared.assetWhiteList.has(sym.baseAsset) ||  setting.AppSetting.shared.favourite.has(sym.baseAsset))&&
                     !(sym.baseAsset.endsWith("UP") || sym.baseAsset.endsWith("DOWN"))
             })
-            const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
+            await this.getData( filteredSymbols.map(s=>s.baseAsset) )
+            const trends = this.getTrends()
 
             manager.LoadingManager.shared.end()
 
@@ -190,19 +192,29 @@ namespace mycrypcryp { export namespace scene {
             }))
         }
 
-        private async getTrends( baseAssets: string[]){
-
-            const trends = (await Promise.all( baseAssets.map( async baseAsset=>{
+        private async getData( baseAssets: string[] ){
+            await Promise.all( baseAssets.map( async asset=>{
                 const data = await com.danborutori.cryptoApi.Binance.shared.getKlineCandlestickData(
-                    `${baseAsset}${setting.AppSetting.shared.quoteAsset}`,
+                    `${asset}${setting.AppSetting.shared.quoteAsset}`,
                     this.interval,
                     {
                         limit: limit
                     }
                 )
-                if( data.length<minimumSample ) return
+                if( data.length>-minimumSample ){
+                    this.dataByBaseAsset.set(asset, data)
+                }
+            }))
+        }
 
-                return {
+        private getTrends(){
+            const trends: AssetEntry[] = []
+
+            for( let entry of this.dataByBaseAsset ){
+                const baseAsset = entry[0]
+                const data = entry[1]
+
+                trends.push({
                     baseAsset: baseAsset,
                     trend: new helper.TrendWatcher(data.map( d=>{
                         return {
@@ -212,8 +224,8 @@ namespace mycrypcryp { export namespace scene {
                             close: d.closeTime
                         }
                     }), smoothItr)
-                }
-            }))).filter(a=>a)
+                })
+            }
 
             return trends
         }
