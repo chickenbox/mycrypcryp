@@ -156,7 +156,7 @@ namespace mycrypcryp { export namespace view {
         }
 
         private onMouseMove(x: number){
-            this.renderGraph(x)
+            this.renderGraph(x*devicePixelRatio)
         }
 
         private onMouseOut(){
@@ -164,8 +164,8 @@ namespace mycrypcryp { export namespace view {
         }
 
         private onMouseDown( x: number, canvas: HTMLCanvasElement ){
-            const toleranceInPixel = 10
-            const time = new Date(x*(this.range.close.getTime()-this.range.open.getTime())/canvas.width+this.range.open.getTime())
+            const toleranceInPixel = 10*devicePixelRatio
+            const time = new Date(x*devicePixelRatio*(this.range.close.getTime()-this.range.open.getTime())/canvas.width+this.range.open.getTime())
             const tolerance = (this.range.close.getTime()-this.range.open.getTime())*toleranceInPixel/canvas.width
 
             this.onClick(time, tolerance)
