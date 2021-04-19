@@ -6,6 +6,33 @@ namespace mycrypcryp { export namespace helper {
         readonly close: Date
     }
 
+    function downSample( data: DataEntry[], amount: number ){ 
+
+        const downSampled: DataEntry[] = []
+
+        for( let i=0; i<data.length; i+=amount ){
+            const end = Math.min(i+amount,data.length)
+            let price = 0
+            let time = 0
+            for( let j=i; j<end; j++ ){
+                const d = data[j]
+                price += d.price
+                time += d.time.getTime()
+            }
+            price /= end-i
+            time /= end-i
+
+            downSampled.push({
+                price: price,
+                time: new Date(time),
+                open: data[i].open,
+                close: data[end-1].close
+            })
+        }
+
+        return downSampled
+    }
+
     function normalizeData( data: DataEntry[] ){
         if( data.length>0 ){
             const min = data.reduce( (a,b)=>Math.min(a, b.price), data[0].price )
@@ -68,14 +95,15 @@ namespace mycrypcryp { export namespace helper {
 
     export class TrendWatcher {
 
-        readonly data: DataEntry[]
-        readonly normalized: {
+        private _rawData: DataEntry[]
+        data: DataEntry[]
+        normalized: {
             high: number
             low: number
             smoothedData: DataEntry[]
         }
-        readonly dDataDt: number[]
-        readonly dDataDDt: number[]
+        dDataDt: number[]
+        dDataDDt: number[]
 
         get high(){
             return this.data.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE)
@@ -91,16 +119,35 @@ namespace mycrypcryp { export namespace helper {
             return this.normalized.smoothedData.last.price*(high-low)+low
         }
 
+        private _downSampling: number
+        get downSampling(){
+            return this._downSampling
+        }
+        set downSampling( n: number ){
+            if( this._downSampling!=n ){
+                this._downSampling = n
+                this.resampling()
+            }
+        }
+
         constructor(
             data: DataEntry[],
-            smoothItr: number = 0
+            readonly smoothItr: number = 0,
+            downSample: number
         ){
+            this._downSampling = downSample
+            this._rawData = data
+            this.resampling()
+        }
+
+        private resampling(){
+            const data = downSample(this._rawData, this._downSampling)
             this.data = data
             const normalizedData = normalizeData(data)
             this.normalized = {
                 high: normalizedData.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
                 low: normalizedData.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE),
-                smoothedData: smoothData( normalizedData, smoothItr )
+                smoothedData: smoothData( normalizedData, this.smoothItr )
             }
 
             this.dDataDt = dDataDT(this.normalized.smoothedData.map(d=>d.price))

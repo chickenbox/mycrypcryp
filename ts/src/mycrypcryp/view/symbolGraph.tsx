@@ -59,10 +59,13 @@ namespace mycrypcryp { export namespace view {
 
         update( range: {
             open: Date
-            close: Date
+            close: Date,
+            downSampling: number
         }){
             this.range.open = range.open
             this.range.close = range.close
+
+            this.trend.downSampling = range.downSampling
 
             this.render()
         }

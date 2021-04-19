@@ -16,7 +16,8 @@ namespace mycrypcryp { export namespace scene {
                 let d = new Date()
                 d.setFullYear(d.getFullYear()-3)
                 return d
-            }
+            },
+            downSampling: 7
         },
         {
             title: "last 1 years",
@@ -24,7 +25,8 @@ namespace mycrypcryp { export namespace scene {
                 let d = new Date()
                 d.setFullYear(d.getFullYear()-1)
                 return d
-            }
+            },
+            downSampling: 7
         },
         {
             title: "last 6 months",
@@ -32,7 +34,8 @@ namespace mycrypcryp { export namespace scene {
                 let d = new Date()
                 d.setMonth(d.getMonth()-6)
                 return d
-            }
+            },
+            downSampling: 7
         },
         {
             title: "last 3 months",
@@ -40,7 +43,8 @@ namespace mycrypcryp { export namespace scene {
                 let d = new Date()
                 d.setMonth(d.getMonth()-3)
                 return d
-            }
+            },
+            downSampling: 7
         },
         {
             title: "last 14 days",
@@ -48,7 +52,8 @@ namespace mycrypcryp { export namespace scene {
                 let d = new Date()
                 d.setTime(d.getTime()-1000*60*60*24*14)
                 return d
-            }
+            },
+            downSampling: 1
         }
     ]
 
@@ -123,9 +128,11 @@ namespace mycrypcryp { export namespace scene {
                 <br/>
                 range: <select onchange={ev=>{
                     const select = ev.target as HTMLSelectElement
-                    this.currentRangeIndex = select.selectedIndex
-                    this.openTime =  rangeOptions[select.selectedIndex].dateFunc()
-                    this.redraw(trends)
+                    const idx = select.selectedIndex
+                    const option = rangeOptions[idx]
+                    this.currentRangeIndex = idx
+                    this.openTime = option.dateFunc()
+                    this.redraw(trends, option.downSampling)
                 }}>{
                     rangeOptions.map((opt, i)=>{
                         const option = <option>{opt.title}</option> as HTMLOptionElement
@@ -182,13 +189,14 @@ namespace mycrypcryp { export namespace scene {
             this.currentConversion = await com.danborutori.cryptoApi.CryptoCompare.shared.getPrice(setting.AppSetting.shared.quoteAsset,setting.AppSetting.shared.currency)
         }
 
-        private redraw(trends: AssetEntry[]){
+        private redraw(trends: AssetEntry[], downSampling: number ){
             const openTime = Math.max( this.openTime.getTime(), trends.reduce((a,b)=>Math.min(a,b.trend.data.first.open.getTime()),Number.MAX_VALUE))
             const closeTime = trends.reduce((a,b)=>Math.max(a,b.trend.data.last.close.getTime()),Number.MIN_VALUE)
 
             this.graphs.forEach(g=>g.update({
                 open: new Date(openTime),
-                close:  new Date(closeTime)
+                close:  new Date(closeTime),
+                downSampling: downSampling
             }))
         }
 
@@ -223,7 +231,7 @@ namespace mycrypcryp { export namespace scene {
                             open: d.openTime,
                             close: d.closeTime
                         }
-                    }), smoothItr)
+                    }), smoothItr, rangeOptions[0].downSampling)
                 })
             }
 
