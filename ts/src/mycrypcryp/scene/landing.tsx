@@ -57,6 +57,26 @@ namespace mycrypcryp { export namespace scene {
         }
     ]
 
+    type Sorting = "peak" | "name" | "ratio"
+
+    const sortingOptions:{
+        title: string
+        value: Sorting
+    }[] = [
+        {
+            title: "peak/valley",
+            value: "peak"
+        },
+        {
+            title: "name",
+            value: "name"
+        },
+        {
+            title: "ratio",
+            value: "ratio"
+        }
+    ]
+
     interface AssetEntry {
         baseAsset: string
         trend: helper.TrendWatcher
@@ -69,6 +89,7 @@ namespace mycrypcryp { export namespace scene {
         private interval: com.danborutori.cryptoApi.Interval = "1d"
         private currentRangeIndex = 0
         private openTime = rangeOptions[0].dateFunc()
+        private sorting: Sorting = "peak"
 
         readonly htmlElement = <div style="position: relative;"></div> as HTMLDivElement
 
@@ -118,7 +139,14 @@ namespace mycrypcryp { export namespace scene {
                 if( cmp!=0 )
                     return cmp
 
-                return Math.abs(a.trend.lastDDataDt)-Math.abs(b.trend.lastDDataDt)
+                switch(this.sorting){
+                case "peak":
+                    return Math.abs(a.trend.lastDDataDt)-Math.abs(b.trend.lastDDataDt)
+                case "name":
+                    return a.baseAsset>b.baseAsset?1:a.baseAsset<b.baseAsset?-1:0
+                case "ratio":
+                    return -(a.trend.high/a.trend.low-b.trend.high/b.trend.low)
+                }
             })
 
             this.htmlElement.innerHTML = ""
@@ -139,6 +167,15 @@ namespace mycrypcryp { export namespace scene {
                         if( this.currentRangeIndex==i )
                             option.selected = true
                         return option
+                    })
+                }</select>
+                &nbsp;&nbsp;sort: <select onchange={ ev=>{
+                    const select = ev.target as HTMLSelectElement
+                    this.sorting = sortingOptions[select.selectedIndex].value
+                    this.refresh()
+                }}>{
+                    sortingOptions.map((opt, i)=>{
+                        return <option>{opt.title}</option>
                     })
                 }</select>
                 <hr/>
