@@ -267,13 +267,16 @@ namespace mycrypcryp { export namespace scene {
                 element: <div style="display: inline-block;">
                     <div align="left">
                     <b>{baseAsset}</b><input onclick={ev=>{
+                        const input = ev.target as HTMLInputElement
                         if( setting.AppSetting.shared.favourite.has(baseAsset)){
                             setting.AppSetting.shared.favourite.delete(baseAsset)
+                            input.value = "☆"
                         }else{
                             setting.AppSetting.shared.favourite.add(baseAsset)
+                            input.value = "★"
                         }
                         setting.AppSetting.shared.commit()
-                        this.refresh()
+                        // this.refresh()
                     }}type="button" value={isFavourite?"★":"☆"} style="float: right;"></input>
                     </div>
                     {graph.htmlElement}<br/><br/>
