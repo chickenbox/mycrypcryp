@@ -160,6 +160,9 @@ namespace mycrypcryp { export namespace view {
                 ctx.moveTo( rulerX, 0)
                 ctx.lineTo( rulerX, canvas.height)
                 ctx.stroke()
+                ctx.fillStyle = "black"
+                const t = rulerX*(this.range.close.getTime()-this.range.open.getTime())/canvas.width+this.range.open.getTime()
+                ctx.fillText(moment(t).format( "D MMM" ),rulerX, canvas.height)
             }
         }
 
