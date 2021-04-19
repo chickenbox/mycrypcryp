@@ -104,6 +104,9 @@ namespace mycrypcryp { export namespace view {
             const x = (trend.data.first.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())
             const width = ((trend.data.last.time.getTime()-this.range.open.getTime())*canvas.width/(this.range.close.getTime()-this.range.open.getTime())-x)
 
+            const sliceStart = trend.data.findIndex(a=>a.close>=this.range.open)
+            const sliceEnd = trend.data.findIndex(a=>a.close>=this.range.close)
+
             const drawer = new helper.GraphDrawer(canvas)
             // drawer.drawGrid(trend.data.length, x, width)
             drawer.drawCurve(
@@ -111,16 +114,18 @@ namespace mycrypcryp { export namespace view {
                 "grey",
                 x,
                 width,
-                trend.data.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
-                trend.data.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE)
+                trend.data.slice(sliceStart, sliceEnd).reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
+                trend.data.slice(sliceStart, sliceEnd).reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE)
             )
+            const normalizeH = trend.normalized.data.slice(sliceStart, sliceEnd).reduce((a,b)=>Math.max(a,b.price),Number.MIN_VALUE)
+            const normalizeL = trend.normalized.data.slice(sliceStart, sliceEnd).reduce((a,b)=>Math.min(a,b.price),Number.MAX_VALUE)
             drawer.drawCurve(
                 trend.normalized.smoothedData.map(d=>d.price),
                 "green",
                 x,
                 width,
-                trend.normalized.high,
-                trend.normalized.low
+                normalizeH,
+                normalizeL
             )
             drawer.visualizeTurningPoint(trend.normalized.smoothedData.map((d,i)=>{
                 return {
@@ -129,8 +134,8 @@ namespace mycrypcryp { export namespace view {
                     dvddx: trend.dDataDDt[i]
                 }
             }), x, width,
-            trend.normalized.high,
-            trend.normalized.low)
+            normalizeH,
+            normalizeL)
 
             const ctx = canvas.getContext("2d")
             // draw marker

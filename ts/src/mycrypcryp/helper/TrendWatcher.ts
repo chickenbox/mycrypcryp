@@ -98,8 +98,7 @@ namespace mycrypcryp { export namespace helper {
         private _rawData: DataEntry[]
         data: DataEntry[]
         normalized: {
-            high: number
-            low: number
+            data: DataEntry[]
             smoothedData: DataEntry[]
         }
         dDataDt: number[]
@@ -145,8 +144,7 @@ namespace mycrypcryp { export namespace helper {
             this.data = data
             const normalizedData = normalizeData(data)
             this.normalized = {
-                high: normalizedData.reduce((a,b)=>Math.max(a,b.price), Number.MIN_VALUE),
-                low: normalizedData.reduce((a,b)=>Math.min(a,b.price), Number.MAX_VALUE),
+                data: normalizedData,
                 smoothedData: smoothData( normalizedData, this.smoothItr )
             }
 
