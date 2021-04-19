@@ -1,8 +1,105 @@
 namespace mycrypcryp { export namespace setting { 
 
+    const defaultAssetWhiteList = [
+        "BTC",
+        "ETH",
+        "BNB",
+        "BUSD",
+        "USDT",
+        "TUSD",
+        "iINCH",
+        "AAVE",
+        "ADA",
+        "ADXOLD",
+        "ALGO",
+        "ALPHA",
+        "ANTOLD",
+        "ATOM",
+        "AUD",
+        "AUDIO",
+        "BAL",
+        "BAND",
+        "BAT",
+        "BCH",
+        "BEAM",
+        "BGBP",
+        "BOT",
+        "BRL",
+        "BTT",
+        "CHZ",
+        "COMP",
+        "CRV",
+        "DAI",
+        "DASH",
+        "DOGE",
+        "DOT",
+        "DREPOLD",
+        "ENJ",
+        "EOS",
+        "ERD",
+        "ETC",
+        "EUR",
+        "FIL",
+        "FTM",
+        "GBP",
+        "GNT",
+        "GRT",
+        "HBAR",
+        "HNT",
+        "JST",
+        "KNC",
+        "LEND",
+        "LINK",
+        "LOOMOLD",
+        "LTC",
+        "LUNA",
+        "MATIC",
+        "MITH",
+        "MKR",
+        "NEO",
+        "NGN",
+        "NPXS",
+        "OMGOMOLD",
+        "ONT",
+        "PAX",
+        "PAXG",
+        "PERLOD",
+        "QTUM",
+        "REN",
+        "REPV1",
+        "RSR",
+        "RUNE",
+        "SNX",
+        "SOL",
+        "SRM",
+        "SUN",
+        "SUSHU",
+        "SXP",
+        "TOMO",
+        "TRX",
+        "TRY",
+        "UNI",
+        "VET",
+        "WAVES",
+        "WBNB",
+        "WETH",
+        "WRX",
+        "XLM",
+        "XMR",
+        "XRP",
+        "XTZ",
+        "XVG",
+        "YFI",
+        "YFII",
+        "ZEC",
+        "ZEN"
+    ]
+
+
     interface AppSettingData {
         currency?: string
         quoteAsset?: string
+        assetWhiteList?: string[]
         favourite?: string[]
         markers?: {
             [key: string]: number[]
@@ -24,6 +121,7 @@ namespace mycrypcryp { export namespace setting {
         }
 
         readonly favourite: Set<string>
+        readonly assetWhiteList: Set<string>
         readonly markers = new Map<string,Date[]>()
 
         constructor(){
@@ -33,6 +131,7 @@ namespace mycrypcryp { export namespace setting {
                 this._data = {}
             }
             this.favourite = new Set(this._data.favourite || ["BTC", "ETH", "PAXG"])
+            this.assetWhiteList = new Set( this._data.assetWhiteList || defaultAssetWhiteList )
             for( let baseAsset in this._data.markers || {} ){
                 this.markers.set( baseAsset, this._data.markers[baseAsset].map(i=>new Date(i)) )
             }

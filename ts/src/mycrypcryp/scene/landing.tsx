@@ -74,6 +74,7 @@ namespace mycrypcryp { export namespace scene {
             const info = await com.danborutori.cryptoApi.Binance.shared.getExchangeInfo()
             const filteredSymbols = info.symbols.filter(sym=>{
                 return sym.quoteAsset==setting.AppSetting.shared.quoteAsset &&
+                    (setting.AppSetting.shared.assetWhiteList.has(sym.baseAsset) ||  setting.AppSetting.shared.favourite.has(sym.baseAsset))&&
                     !(sym.baseAsset.endsWith("UP") || sym.baseAsset.endsWith("DOWN"))
             })
             const trends = await this.getTrends(filteredSymbols.map(s=>s.baseAsset))
