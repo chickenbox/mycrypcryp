@@ -89,6 +89,7 @@ namespace mycrypcryp { export namespace scene {
         private interval: com.danborutori.cryptoApi.Interval = "1d"
         private currentRangeIndex = 0
         private openTime = rangeOptions[0].dateFunc()
+        private currentSortingIndex = 0
         private sorting: Sorting = "peak"
 
         readonly htmlElement = <div style="position: relative;"></div> as HTMLDivElement
@@ -171,11 +172,14 @@ namespace mycrypcryp { export namespace scene {
                 }</select>
                 &nbsp;&nbsp;sort: <select onchange={ ev=>{
                     const select = ev.target as HTMLSelectElement
+                    this.currentSortingIndex = select.selectedIndex
                     this.sorting = sortingOptions[select.selectedIndex].value
                     this.refresh()
                 }}>{
                     sortingOptions.map((opt, i)=>{
-                        return <option>{opt.title}</option>
+                        const option = <option>{opt.title}</option> as HTMLOptionElement
+                        option.selected = i==this.currentSortingIndex
+                        return option
                     })
                 }</select>
                 <hr/>
