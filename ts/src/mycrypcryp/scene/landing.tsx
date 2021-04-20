@@ -47,6 +47,15 @@ namespace mycrypcryp { export namespace scene {
             downSampling: 7
         },
         {
+            title: "last month",
+            dateFunc: function(){
+                let d = new Date()
+                d.setMonth(d.getMonth()-1)
+                return d
+            },
+            downSampling: 1
+        },
+        {
             title: "last 14 days",
             dateFunc: function(){
                 let d = new Date()
