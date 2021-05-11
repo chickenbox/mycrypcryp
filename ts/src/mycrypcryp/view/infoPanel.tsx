@@ -37,9 +37,15 @@ namespace mycrypcryp { export namespace view {
                     <font size="2">version {version}</font><br/>
                     setting: <input type="button" value="export" onclick={async ev=>{
                         const settingString = setting.AppSetting.shared.export()
-                        manager.LoadingManager.shared.begin()
-                        await (navigator as any).clipboard.writeText(settingString)
-                        manager.LoadingManager.shared.end()
+                        const copyBoard = <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);">
+                            <center>
+                            <textarea rows="4" cols="50">{settingString}</textarea><br/>
+                            <input type="button" value="close" onclick={ev=>{
+                                document.body.removeChild(copyBoard)
+                            }}/>
+                            </center>
+                        </div>
+                        document.body.appendChild(copyBoard)
                     }}/><input type="button" value="import" onclick={ev=>{
                         const settingString = prompt("Please paste setting string here:")
                         settingString && setting.AppSetting.shared.import(settingString)
