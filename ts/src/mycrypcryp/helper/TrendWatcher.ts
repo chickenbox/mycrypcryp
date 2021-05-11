@@ -61,9 +61,17 @@ namespace mycrypcryp { export namespace helper {
                 if(i>0){
                     r += smoothedData[i-1].price
                     cnt++
+                }else if(i+1<smoothedData.length){
+                    const d = smoothedData[i+1].price-smoothedData[i].price
+                    r += smoothedData[i].price-d
+                    cnt++
                 }
                 if( i+1<smoothedData.length){
                     r += smoothedData[i+1].price
+                    cnt++
+                }else if(i-1>=0){
+                    const d = smoothedData[i-1].price-smoothedData[i].price
+                    r += smoothedData[i].price-d
                     cnt++
                 }
                 return {
