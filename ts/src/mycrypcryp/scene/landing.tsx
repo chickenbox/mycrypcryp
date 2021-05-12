@@ -143,8 +143,15 @@ namespace mycrypcryp { export namespace scene {
 
 
             const trends = this.trends.sort((a,b)=>{
-                const cmp = (setting.AppSetting.shared.favourite.has(a.baseAsset)?-1:1) - 
+                let cmp = (setting.AppSetting.shared.favourite.has(a.baseAsset)?-1:1) - 
                 (setting.AppSetting.shared.favourite.has(b.baseAsset)?-1:1)
+                if( cmp!=0 )
+                    return cmp
+
+                const markersA = setting.AppSetting.shared.markers.get(a.baseAsset) || []
+                const markersB = setting.AppSetting.shared.markers.get(b.baseAsset) || []
+
+                cmp = markersB.length-markersA.length
                 if( cmp!=0 )
                     return cmp
 
