@@ -10,33 +10,33 @@ namespace mycrypcryp { export namespace scene {
     }
 
     const rangeOptions = [
-        {
-            title: "last 3 years",
-            dateFunc: function(){
-                let d = new Date()
-                d.setFullYear(d.getFullYear()-3)
-                return d
-            },
-            downSampling: 7
-        },
-        {
-            title: "last 1 years",
-            dateFunc: function(){
-                let d = new Date()
-                d.setFullYear(d.getFullYear()-1)
-                return d
-            },
-            downSampling: 7
-        },
-        {
-            title: "last 6 months",
-            dateFunc: function(){
-                let d = new Date()
-                d.setMonth(d.getMonth()-6)
-                return d
-            },
-            downSampling: 7
-        },
+        // {
+        //     title: "last 3 years",
+        //     dateFunc: function(){
+        //         let d = new Date()
+        //         d.setFullYear(d.getFullYear()-3)
+        //         return d
+        //     },
+        //     downSampling: 7*24
+        // },
+        // {
+        //     title: "last 1 years",
+        //     dateFunc: function(){
+        //         let d = new Date()
+        //         d.setFullYear(d.getFullYear()-1)
+        //         return d
+        //     },
+        //     downSampling: 7*24
+        // },
+        // {
+        //     title: "last 6 months",
+        //     dateFunc: function(){
+        //         let d = new Date()
+        //         d.setMonth(d.getMonth()-6)
+        //         return d
+        //     },
+        //     downSampling: 7*24
+        // },
         {
             title: "last 3 months",
             dateFunc: function(){
@@ -44,7 +44,7 @@ namespace mycrypcryp { export namespace scene {
                 d.setMonth(d.getMonth()-3)
                 return d
             },
-            downSampling: 7
+            downSampling: 7*24
         },
         {
             title: "last month",
@@ -53,13 +53,31 @@ namespace mycrypcryp { export namespace scene {
                 d.setMonth(d.getMonth()-1)
                 return d
             },
-            downSampling: 1
+            downSampling: 7
         },
         {
             title: "last 14 days",
             dateFunc: function(){
                 let d = new Date()
                 d.setTime(d.getTime()-1000*60*60*24*14)
+                return d
+            },
+            downSampling: 8
+        },
+        {
+            title: "last 7 days",
+            dateFunc: function(){
+                let d = new Date()
+                d.setTime(d.getTime()-1000*60*60*24*7)
+                return d
+            },
+            downSampling: 1
+        },
+        {
+            title: "last 1 days",
+            dateFunc: function(){
+                let d = new Date()
+                d.setTime(d.getTime()-1000*60*60*24)
                 return d
             },
             downSampling: 1
@@ -95,7 +113,7 @@ namespace mycrypcryp { export namespace scene {
         private infoPanel = new view.InfoPanel()
 
         private currentConversion = 0
-        private interval: com.danborutori.cryptoApi.Interval = "1d"
+        private interval: com.danborutori.cryptoApi.Interval = "1h"
         private currentRangeIndex = 0
         private openTime = rangeOptions[0].dateFunc()
         private currentSortingIndex = 0
