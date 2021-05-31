@@ -300,7 +300,7 @@ namespace mycrypcryp { export namespace scene {
                     baseAsset: baseAsset,
                     trend: new helper.TrendWatcher(data.map( d=>{
                         return {
-                            price: (d.low+d.high)/2,
+                            price: d.close,
                             time: new Date((d.openTime.getTime()+d.closeTime.getTime())/2),
                             open: d.openTime,
                             close: d.closeTime
