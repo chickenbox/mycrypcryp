@@ -71,7 +71,7 @@ namespace mycrypcryp { export namespace scene {
                 d.setTime(d.getTime()-1000*60*60*24*7)
                 return d
             },
-            downSampling: 1
+            downSampling: 6
         },
         {
             title: "last 1 days",
