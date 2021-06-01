@@ -298,7 +298,7 @@ namespace mycrypcryp { export namespace scene {
 
                 trends.push({
                     baseAsset: baseAsset,
-                    trend: new helper.TrendWatcher(data.map( d=>{
+                    trend: new helper.TrendWatcher( entry[0], data.map( d=>{
                         return {
                             price: d.close,
                             time: new Date((d.openTime.getTime()+d.closeTime.getTime())/2),

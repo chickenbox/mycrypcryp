@@ -19,6 +19,7 @@ interface NeuralNetworkTrainConfiguration {
     callback?: Function // a periodic call back that can be triggered while training --> null or function
     callbackPeriod?: number // the number of iterations through the training data between callback calls --> number greater than 0
     timeout?: number // the max number of milliseconds to train for --> number greater than 0
+    keepNetworkIntact?: boolean
   }
 
 interface NeuralNetworkTrainStatus {
@@ -37,4 +38,7 @@ interface NeuralNetwork{
     // trainAsync( data: NeuralNetworkTrainData[], options?: NeuralNetworkTrainConfiguration ): Promise<NeuralNetworkTrainStatus>
 
     run( data: number[] ): number[]
+
+    toJSON(): any
+    fromJSON(json:any)
 }
