@@ -52,10 +52,58 @@ namespace mycrypcryp { export namespace helper {
 
     }
 
+    function predict( data: number[], lookback: number, predict: number ){
+        const sampleLimit = 5
+        const minimumSample = 5
+
+        if( data.length>sampleLimit+predict+lookback ) { // limit data size
+            data = data.slice(-sampleLimit-predict-lookback)
+        }
+
+        const trainingDataLen = data.length-predict-lookback
+
+        const max = data.reduce((a,b)=>Math.max(a,b), Number.NEGATIVE_INFINITY)
+        const min = data.reduce((a,b)=>Math.min(a,b), Number.POSITIVE_INFINITY)
+        const range = max-min
+        data = data.map( a=>(a-min)/range )
+
+        if( trainingDataLen>=minimumSample ){
+
+            const trainingData: NeuralNetworkTrainData[] = new Array(trainingDataLen)
+            for( let i=0; i<trainingDataLen; i++ ){
+                trainingData[i] = {
+                    input: data.slice(i,i+lookback),
+                    output: data.slice(i+lookback,i+lookback+predict)
+                }
+            }
+
+            const net = new brain.NeuralNetwork()
+            net.train(trainingData)
+
+            const forecast = net.run( data.slice( -lookback ) ).map(a=>a*range+min)
+
+            return forecast
+        }else{
+            return []
+        }
+    }
+
     function smoothData( data: DataEntry[], iteration: number ){
-        let smoothedData = data
-        for( let i=0; i<iteration; i++ ){
-            smoothedData = smoothedData.map( (d, i, arr)=>{
+
+        let smoothedData = Array.from(data)
+
+        const extentedTail = predict(smoothedData.map(a=>a.price), 5, 5)
+        extentedTail.forEach( d=>{
+            smoothedData.push({
+                price: d,
+                time: new Date(),
+                open: new Date(),
+                close: new Date()
+            })    
+        })
+
+        for( let j=0; j<iteration; j++ ){
+            smoothedData = smoothedData.map( (d, i)=>{
                 let r = d.price
                 let cnt = 1
                 if(i>0){
@@ -82,6 +130,8 @@ namespace mycrypcryp { export namespace helper {
                 }
             })
         }
+
+        smoothedData.length -= extentedTail.length
         return smoothedData
     }
 
