@@ -40,11 +40,13 @@ namespace mycrypcryp { export namespace helper {
                     keepNetworkIntact = true
                 }
 
-                net.train(trainingData, {
-                    keepNetworkIntact: keepNetworkIntact
-                })
+                net.train(trainingData)
     
-                const forecast = net.run( data.slice( -lookback ) ).map(a=>a*range+min)
+                const r = net.run( data.slice( -lookback ) )
+                const forecast = new Array<number>(predict);
+                for( let i=0; i< predict; i++){
+                    forecast[i] = r[i]*range+min
+                }
 
                 localStorage.setItem(key, JSON.stringify(net.toJSON()))
     
