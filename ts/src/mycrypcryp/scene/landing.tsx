@@ -37,15 +37,15 @@ namespace mycrypcryp { export namespace scene {
         //     },
         //     downSampling: 7*24
         // },
-        {
-            title: "last 3 months",
-            dateFunc: function(){
-                let d = new Date()
-                d.setMonth(d.getMonth()-3)
-                return d
-            },
-            downSampling: 7*24
-        },
+        // {
+        //     title: "last 3 months",
+        //     dateFunc: function(){
+        //         let d = new Date()
+        //         d.setMonth(d.getMonth()-3)
+        //         return d
+        //     },
+        //     downSampling: 7*24
+        // },
         {
             title: "last month",
             dateFunc: function(){
@@ -53,7 +53,7 @@ namespace mycrypcryp { export namespace scene {
                 d.setMonth(d.getMonth()-1)
                 return d
             },
-            downSampling: 7
+            downSampling: 24
         },
         {
             title: "last 14 days",
@@ -72,6 +72,24 @@ namespace mycrypcryp { export namespace scene {
                 return d
             },
             downSampling: 6
+        },
+        {
+            title: "last 3 days",
+            dateFunc: function(){
+                let d = new Date()
+                d.setTime(d.getTime()-1000*60*60*24*3)
+                return d
+            },
+            downSampling: 2
+        },
+        {
+            title: "last 2 days",
+            dateFunc: function(){
+                let d = new Date()
+                d.setTime(d.getTime()-1000*60*60*24*2)
+                return d
+            },
+            downSampling: 1
         },
         {
             title: "last 1 days",
